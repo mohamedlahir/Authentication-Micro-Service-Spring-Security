@@ -1,0 +1,13 @@
+com/authentication/service/auth/models/AuthenticationModel.class
+com/authentication/service/auth/service/JWTService.class
+com/authentication/service/auth/models/Users.class
+com/authentication/service/auth/service/UserService.class
+com/authentication/service/auth/controllers/HomeController.class
+com/authentication/service/auth/AuthApplication.class
+com/authentication/service/auth/service/UserPrincipal.class
+com/authentication/service/auth/repositories/UserRepository.class
+com/authentication/service/auth/security/SecurityConfiguration.class
+com/authentication/service/auth/security/JWTFilter.class
+com/authentication/service/auth/service/MyUserDetails.class
+com/authentication/service/auth/controllers/UserControllers.class
+com/authentication/service/auth/models/JWTResponseToken.class
