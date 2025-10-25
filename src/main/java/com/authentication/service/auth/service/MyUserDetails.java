@@ -1,7 +1,9 @@
 package com.authentication.service.auth.service;
 
+import com.authentication.service.auth.models.AuthenticationModel;
 import com.authentication.service.auth.models.Users;
-import com.authentication.service.auth.repositories.UserRepository;
+import com.authentication.service.auth.repositories.AuthenticationModelRepository;
+//import com.authentication.service.auth.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,20 +14,17 @@ import org.springframework.stereotype.Service;
 public class MyUserDetails implements UserDetailsService {
 
     @Autowired
-    UserRepository repository;
+    AuthenticationModelRepository authenticationModelRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Users user = repository.findByusername(username);
+        AuthenticationModel authenticationModel = authenticationModelRepository.findByEmail(username);
 
-        System.out.println(user.getUsername());
-
-        if (user == null) {
-            throw new UsernameNotFoundException("user not found" + user);
+        if (authenticationModel == null) {
+            throw new UsernameNotFoundException("user not found" + authenticationModel);
         }
-
-        return new UserPrincipal(user);
+        return new UserPrincipal(authenticationModel);
 
     }
 }

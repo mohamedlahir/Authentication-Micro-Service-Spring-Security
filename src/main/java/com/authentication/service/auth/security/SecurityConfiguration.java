@@ -21,21 +21,25 @@ import org.springframework.stereotype.Service;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-
     @Autowired
     private JWTFilter jwtFilter;
 
-   @Autowired
-   private UserDetailsService userDetailsService;
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-
-       return httpSecurity.csrf(customizer -> customizer.disable())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/login","/auth/register","/auth/validate","/actuator/**").permitAll()
-                        .anyRequest().authenticated())
-               .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        System.out.println("Configuring SecurityFilterChain");
+        return httpSecurity.csrf(customizer -> customizer.disable())
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/auth/login", "/auth/register", "/auth/validate", "/actuator/health").permitAll()
+                            .requestMatchers("/auth/greet").hasRole("ADMIN")
+                            .requestMatchers("/users/**").hasRole("USER")
+                        .anyRequest().authenticated();
+                    System.out.println("Configured authorization rules");
+                })
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 

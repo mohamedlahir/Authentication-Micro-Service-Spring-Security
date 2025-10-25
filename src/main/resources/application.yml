@@ -1,9 +1,9 @@
 spring:
   application:
-    name: auth-service   # 👈 service name shown in Consul
+    name: auth-service
   cloud:
     consul:
-      host: localhost    # change if Consul is running elsewhere
+      host: localhost
       port: 8500
       discovery:
         service-name: ${spring.application.name}
@@ -11,9 +11,16 @@ spring:
         prefer-ip-address: true
         health-check-path: /actuator/health
         health-check-interval: 10s
+        instance-id: ${spring.application.name}-${server.port}
+        tags:
+          - auth-service
+          - secure=true
+
+server:
+  port: 8081
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info   # expose health for Consul
+        include: health,info

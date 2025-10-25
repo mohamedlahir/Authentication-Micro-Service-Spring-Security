@@ -76,6 +76,14 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!--Event Messaging -->
+		<!-- https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>4.0.0-RC1</version>
+		</dependency>
+
 		<!-- Database -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
