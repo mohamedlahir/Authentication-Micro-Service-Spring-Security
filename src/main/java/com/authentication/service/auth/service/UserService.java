@@ -11,6 +11,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -77,16 +78,20 @@ public class UserService {
         return ResponseEntity.ok("User is saved");
     }
     public JWTResponseToken verify(AuthenticationModel loginDetails) {
-        Authentication authentication =
-                authenticationManager.authenticate
-                        (new UsernamePasswordAuthenticationToken(loginDetails.getEmail(),loginDetails.getPassword()));
-        if (authentication.isAuthenticated()) {
-            // Get Users entity from principal and use its role
-            AuthenticationModel user = AuthenticationModelRepository.findByEmail(loginDetails.getEmail());
-            String token = jwtService.generateToken(user.getEmail(), user.getRole());
-            responseToken.setToken(token);
-            return responseToken;
+        try {
+            Authentication authentication =
+                    authenticationManager.authenticate
+                            (new UsernamePasswordAuthenticationToken(loginDetails.getEmail(),loginDetails.getPassword()));
+            if (authentication.isAuthenticated()) {
+                // Get Users entity from principal and use its role
+                AuthenticationModel user = AuthenticationModelRepository.findByEmail(loginDetails.getEmail());
+                String token = jwtService.generateToken(user.getEmail(), user.getRole());
+                responseToken.setToken(token);
+                return responseToken;
+            }
+            return new JWTResponseToken();
+        } catch (AuthenticationException e) {
+            throw new RuntimeException(e);
         }
-        return new JWTResponseToken();
     }
 }
