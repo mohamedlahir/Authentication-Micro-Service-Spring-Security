@@ -34,7 +34,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/login", "/auth/register", "/auth/validate", "/actuator/health").permitAll()
                             .requestMatchers("/auth/greet").hasRole("ADMIN")
-                            .requestMatchers("/users/**").hasRole("USER")
+//                            .requestMatchers("/users/**").hasRole("USER")
                         .anyRequest().authenticated();
                     System.out.println("Configured authorization rules");
                 })

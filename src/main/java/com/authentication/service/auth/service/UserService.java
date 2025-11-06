@@ -77,6 +77,11 @@ public class UserService {
 
         return ResponseEntity.ok("User is saved");
     }
+
+    public List<AuthenticationModel> getUsers(){
+        return AuthenticationModelRepository.findAll();
+    }
+
     public JWTResponseToken verify(AuthenticationModel loginDetails) {
         try {
             Authentication authentication =
