@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -65,4 +66,10 @@ public class HomeController {
             return ResponseEntity.ok(false);
         }
     }
+
+    @GetMapping("/getAuthUsers")
+    public List<AuthenticationModel> getAllUsers() {
+        return userService.getUsers();
+    }
+
 }
