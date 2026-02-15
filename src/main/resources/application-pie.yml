@@ -3,13 +3,13 @@ spring:
     name: auth-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/auth_db}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/auth_db}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:0000}
     driver-class-name: org.postgresql.Driver
 
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
 
   jpa:
     hibernate:
@@ -22,7 +22,7 @@ spring:
 
   cloud:
     consul:
-      host: ${CONSUL_HOST:localhost}
+      host: ${CONSUL_HOST:consul}
       port: ${CONSUL_PORT:8500}
       discovery:
         service-name: auth-service
