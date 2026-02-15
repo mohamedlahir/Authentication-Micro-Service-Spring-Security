@@ -1,23 +1,25 @@
 package com.authentication.service.auth.controllers;
 
 import com.authentication.service.auth.models.AuthenticationModel;
-import com.authentication.service.auth.models.JWTResponseToken;
+import com.authentication.service.auth.DTO.JWTResponseToken;
 import com.authentication.service.auth.models.Users;
 //import com.authentication.service.auth.repositories.UserRepository;
 import com.authentication.service.auth.service.JWTService;
 import com.authentication.service.auth.service.MyUserDetails;
 import com.authentication.service.auth.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/auth")
 public class HomeController {
 
@@ -44,7 +46,7 @@ public class HomeController {
     }
 
     @PostMapping("/login")
-    public JWTResponseToken login(@RequestBody AuthenticationModel loginDetails) throws NoSuchAlgorithmException {
+    public JWTResponseToken login(@Valid @RequestBody AuthenticationModel loginDetails) throws NoSuchAlgorithmException {
         return userService.verify(loginDetails);
     }
 

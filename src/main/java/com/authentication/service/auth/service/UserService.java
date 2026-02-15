@@ -1,12 +1,15 @@
 package com.authentication.service.auth.service;
 
+import com.authentication.service.auth.Exceptions.InvalidCredentialsException;
 import com.authentication.service.auth.models.AuthenticationModel;
-import com.authentication.service.auth.models.JWTResponseToken;
+import com.authentication.service.auth.DTO.JWTResponseToken;
 import com.authentication.service.auth.models.Users;
 import com.authentication.service.auth.repositories.AuthenticationModelRepository;
 //import com.authentication.service.auth.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -62,6 +65,8 @@ public class UserService {
         authenticationModel.setProfileID(profileIDStr);
         authenticationModel.setEmail(usersData.getEmail());
         authenticationModel.setRole(usersData.getRole());
+        authenticationModel.setSchoolId(usersData.getSchoolId());
+        System.err.println("Saving User: " + authenticationModel.toString());
         AuthenticationModelRepository.save(authenticationModel);
         usersData.setProfileID(profileIDStr);
         System.err.println("User is saved: " + usersData.getProfileID());
@@ -78,25 +83,56 @@ public class UserService {
         return ResponseEntity.ok("User is saved");
     }
 
+    @KafkaListener(topics = "tutor-profile-creation", groupId = "group_id")
+    public void consume(String payload) {
+        System.err.println("Received message: " + payload);
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
+            AuthenticationModel authModelFromTutorService =
+                    om.readValue(payload, AuthenticationModel.class);
+            System.err.println("Consumed UsersProfile: " + authModelFromTutorService);
+            AuthenticationModelRepository.save(authModelFromTutorService);
+        } catch (Exception e) {
+            System.err.println("Failed processing UsersProfile: " + e.getMessage());
+        }
+    }
+
     public List<AuthenticationModel> getUsers(){
         return AuthenticationModelRepository.findAll();
     }
 
     public JWTResponseToken verify(AuthenticationModel loginDetails) {
+
         try {
             Authentication authentication =
-                    authenticationManager.authenticate
-                            (new UsernamePasswordAuthenticationToken(loginDetails.getEmail(),loginDetails.getPassword()));
-            if (authentication.isAuthenticated()) {
-                // Get Users entity from principal and use its role
-                AuthenticationModel user = AuthenticationModelRepository.findByEmail(loginDetails.getEmail());
-                String token = jwtService.generateToken(user.getEmail(), user.getRole());
-                responseToken.setToken(token);
-                return responseToken;
-            }
-            return new JWTResponseToken();
-        } catch (AuthenticationException e) {
-            throw new RuntimeException(e);
+                    authenticationManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                    loginDetails.getEmail(),
+                                    loginDetails.getPassword()
+                            )
+                    );
+
+            // If we reached here → authentication is SUCCESSFUL
+            AuthenticationModel user =
+                    AuthenticationModelRepository.findByEmail(loginDetails.getEmail());
+
+            System.err.println("Authenticated User: " + user.toString());
+            String token = jwtService.generateToken(user.getEmail(), user.getRole(), user.getSchoolId(), user.getProfileID());
+
+            JWTResponseToken responseToken = new JWTResponseToken();
+            responseToken.setToken(token);
+            responseToken.setStatusCode(HttpStatus.OK.value());
+            responseToken.setLoginStatus("Login Successful");
+            responseToken.setSchooldId(user.getSchoolId());
+            responseToken.setProfileID(user.getProfileID());
+            responseToken.setRole(user.getRole());
+
+            return responseToken;
+
+        } catch (AuthenticationException ex) {
+            // convert Spring Security exception to your custom exception
+            throw new InvalidCredentialsException(ex.getMessage());
         }
     }
+
 }

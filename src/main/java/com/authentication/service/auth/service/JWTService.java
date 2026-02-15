@@ -33,9 +33,11 @@ public class JWTService {
     }
 
     // Updated: Accept role as a string and add as a claim
-    public String generateToken(String username, String role) {
+    public String generateToken(String username, String role, Long schoolId, String profileId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
+        claims.put("schoolId", schoolId);
+        claims.put("profileId", profileId);
         return Jwts.builder()
                 .claims()
                 .add(claims)
