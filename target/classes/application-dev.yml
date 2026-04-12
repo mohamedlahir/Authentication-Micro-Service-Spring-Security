@@ -22,6 +22,8 @@ spring:
 
   cloud:
     consul:
+      # Disable consul in local/dev to avoid connection attempts when Consul is not running
+      enabled: true
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       discovery:
@@ -39,4 +41,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

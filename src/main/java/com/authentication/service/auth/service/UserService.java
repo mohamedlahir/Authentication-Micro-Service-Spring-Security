@@ -41,9 +41,10 @@ public class UserService {
     @Autowired
     JWTResponseToken responseToken;
 
-    // changed kafkaTemplate to send String payloads (serialize Users to JSON)
+    // KafkaTemplate configured to send Users objects directly (producer uses JsonSerializer)
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    @org.springframework.beans.factory.annotation.Qualifier("usersKafkaTemplate")
+    private KafkaTemplate<String, Users> kafkaTemplate;
 
     private PasswordEncoder encoder(){
         return new BCryptPasswordEncoder();
@@ -70,15 +71,8 @@ public class UserService {
         AuthenticationModelRepository.save(authenticationModel);
         usersData.setProfileID(profileIDStr);
         System.err.println("User is saved: " + usersData.getProfileID());
-        // Serialize Users to JSON and send as String to avoid ClassCastException with StringSerializer
-        try {
-            com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
-            String payload = om.writeValueAsString(usersData);
-            kafkaTemplate.send("user-profile-creation", profileIDStr, payload);
-
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            return ResponseEntity.status(500).body("Failed to serialize user data for Kafka: " + e.getMessage());
-        }
+        // Send Users object directly; KafkaTemplate value serializer is JsonSerializer
+        kafkaTemplate.send("user-profile-creation", profileIDStr, usersData);
 
         return ResponseEntity.ok("User is saved");
     }
@@ -91,6 +85,15 @@ public class UserService {
             AuthenticationModel authModelFromTutorService =
                     om.readValue(payload, AuthenticationModel.class);
             System.err.println("Consumed UsersProfile: " + authModelFromTutorService);
+            String incomingPassword = authModelFromTutorService.getPassword();
+            if (incomingPassword != null
+                    && !incomingPassword.startsWith("$2a$")
+                    && !incomingPassword.startsWith("$2b$")
+                    && !incomingPassword.startsWith("$2y$")) {
+                System.out.println("Hashing incoming password for user: " + incomingPassword);
+                // Only hash if the incoming password is not already bcrypt-hashed.
+                authModelFromTutorService.setPassword(encoder().encode(incomingPassword));
+            }
             AuthenticationModelRepository.save(authModelFromTutorService);
         } catch (Exception e) {
             System.err.println("Failed processing UsersProfile: " + e.getMessage());

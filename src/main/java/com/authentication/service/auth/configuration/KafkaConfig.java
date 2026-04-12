@@ -1,6 +1,6 @@
 package com.authentication.service.auth.configuration;
 
-
+import com.authentication.service.auth.models.Users;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,18 +21,35 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    public ProducerFactory<String, String> producerFactory() {
+    public ProducerFactory<String, Users> usersProducerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        // Use StringSerializer for values (we send JSON strings from the service)
+        // Use JsonSerializer for values so we can send Users objects directly
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        // Optionally trust packages for serialization (can also be configured in application.yml)
+        props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+        return new DefaultKafkaProducerFactory<>(props);
+    }
+
+    @Bean
+    public KafkaTemplate<String, Users> usersKafkaTemplate() {
+        return new KafkaTemplate<>(usersProducerFactory());
+    }
+
+    // --- Provide a plain String-based producer/template too for existing callers ---
+    @Bean
+    public ProducerFactory<String, String> stringProducerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         return new DefaultKafkaProducerFactory<>(props);
     }
 
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+        return new KafkaTemplate<>(stringProducerFactory());
     }
 
 }

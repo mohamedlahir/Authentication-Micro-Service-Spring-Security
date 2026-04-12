@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @Validated
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class HomeController {
 
     @Autowired
@@ -47,6 +47,7 @@ public class HomeController {
 
     @PostMapping("/login")
     public JWTResponseToken login(@Valid @RequestBody AuthenticationModel loginDetails) throws NoSuchAlgorithmException {
+        System.err.println("Received login request for username: " + loginDetails.getEmail());
         return userService.verify(loginDetails);
     }
 

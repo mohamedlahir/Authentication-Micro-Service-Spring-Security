@@ -32,9 +32,9 @@ public class JWTFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();  // Changed from getServletPath to getRequestURI
         System.out.println("\n=== Processing request for path: " + path + " ===");
 
-        if (path.startsWith("/auth/login")
-                || path.startsWith("/auth/register")
-                || path.startsWith("/auth/validate")
+        if (path.startsWith("/api/auth/login")
+                || path.startsWith("/api/auth/register")
+                || path.startsWith("/api/auth/validate")
                 || path.startsWith("/actuator/health")) {
             System.out.println("Skipping authentication for public endpoint: " + path);
             filterChain.doFilter(request, response);

@@ -17,7 +17,6 @@ public class AuthenticationModel {
     @Email(message="Invalid Email Address")
     private String email;
     @NotNull
-//    @Size(min = 6,max = 10, message = "Password must be at least 6 and 10 characters long")
     private String password;
     private String role;
     private Long schoolId;
