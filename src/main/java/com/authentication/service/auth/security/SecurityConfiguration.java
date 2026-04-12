@@ -32,8 +32,8 @@ public class SecurityConfiguration {
         System.out.println("Configuring SecurityFilterChain");
         return httpSecurity.csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/login", "/auth/register", "/auth/validate", "/actuator/health").permitAll()
-                            .requestMatchers("/auth/greet").hasRole("ADMIN")
+                    auth.requestMatchers("/api/auth/**","/actuator/health").permitAll()
+
 //                            .requestMatchers("/users/**").hasRole("USER")
                         .anyRequest().authenticated();
                     System.out.println("Configured authorization rules");
