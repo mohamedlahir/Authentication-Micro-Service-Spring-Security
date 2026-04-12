@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @Validated
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class HomeController {
 
     @Autowired
