@@ -111,7 +111,8 @@ spring:
       discovery:
         service-name: ${spring.application.name}
         register: true
-        prefer-ip-address: true
+        prefer-ip-address: false
+        hostname: auth-service
         health-check-path: /actuator/health
         health-check-interval: 10s
 
