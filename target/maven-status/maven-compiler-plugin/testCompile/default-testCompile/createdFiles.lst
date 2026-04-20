@@ -1,1 +1,5 @@
 com/authentication/service/auth/AuthApplicationTests.class
+com/authentication/service/auth/Exceptions/GlobalExceptionHandlerTest$JwtTestConfig.class
+com/authentication/service/auth/Exceptions/TestExceptionController.class
+com/authentication/service/auth/Exceptions/TestExceptionController$TestDTO.class
+com/authentication/service/auth/Exceptions/GlobalExceptionHandlerTest.class
